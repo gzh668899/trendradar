@@ -242,19 +242,18 @@ def split_content_into_batches(
                 sa_parts.append(f"RSS {sa_rss_count}")
             base_header += f"{b_s}独立展示：{b_e} {sa_total} 条（{' + '.join(sa_parts)}）\n"
 
-    # === 空行分隔 ===
-    base_header += "\n"
-
     # 热门话题：仅当匹配到多个词组时显示（单词组时整份推送都是它，无需重复）
     stats_all = report_data.get("stats", [])
     if len(stats_all) >= 2:
         topics = " | ".join(s["word"] for s in stats_all[:3])
         base_header += f"{b_s}热门话题：{b_e} {topics}\n"
 
-    if format_type in ("feishu", "dingtalk"):
-        base_header += "\n---\n\n"
-    else:
-        base_header += "\n"
+    # 头部有内容时才与正文分隔，避免推送开头出现悬空的分割线
+    if base_header:
+        if format_type in ("feishu", "dingtalk"):
+            base_header += "\n---\n\n"
+        else:
+            base_header += "\n"
 
     base_footer = ""
     if format_type in ("wework", "bark"):
@@ -1049,12 +1048,8 @@ def _process_rss_stats_section(
             else:
                 word_header = f"📌 {sequence_display} **{word}** : {count} 条\n\n"
         elif format_type == "feishu":
-            if count >= 10:
-                word_header = f"🔥 <font color='grey'>{sequence_display}</font> **{word}** : <font color='red'>{count}</font> 条\n\n"
-            elif count >= 5:
-                word_header = f"📈 <font color='grey'>{sequence_display}</font> **{word}** : <font color='orange'>{count}</font> 条\n\n"
-            else:
-                word_header = f"📌 <font color='grey'>{sequence_display}</font> **{word}** : {count} 条\n\n"
+            # 定制:固定用📌,不按热度分级,不显示序号与条数
+            word_header = f"📌 **{word}**\n\n"
         elif format_type == "dingtalk":
             if count >= 10:
                 word_header = f"🔥 {sequence_display} **{word}** : **{count}** 条\n\n"
