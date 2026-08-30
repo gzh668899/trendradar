@@ -982,29 +982,29 @@ def _process_rss_stats_section(
     if add_separator and current_batch_has_content:
         # 需要添加分割线
         if format_type == "feishu":
-            rss_header = f"\n{feishu_separator}\n\n📰 **橘鸦日报** (共 {total_items} 条)\n\n"
+            rss_header = f"\n{feishu_separator}\n\n📰 **RSS 订阅统计** (共 {total_items} 条)\n\n"
         elif format_type == "dingtalk":
-            rss_header = f"\n---\n\n📰 **橘鸦日报** (共 {total_items} 条)\n\n"
+            rss_header = f"\n---\n\n📰 **RSS 订阅统计** (共 {total_items} 条)\n\n"
         elif format_type in ("wework", "bark"):
-            rss_header = f"\n\n\n\n📰 **橘鸦日报** (共 {total_items} 条)\n\n"
+            rss_header = f"\n\n\n\n📰 **RSS 订阅统计** (共 {total_items} 条)\n\n"
         elif format_type == "telegram":
-            rss_header = f"\n\n📰 橘鸦日报 (共 {total_items} 条)\n\n"
+            rss_header = f"\n\n📰 RSS 订阅统计 (共 {total_items} 条)\n\n"
         elif format_type == "slack":
-            rss_header = f"\n\n📰 *橘鸦日报* (共 {total_items} 条)\n\n"
+            rss_header = f"\n\n📰 *RSS 订阅统计* (共 {total_items} 条)\n\n"
         else:
-            rss_header = f"\n\n📰 **橘鸦日报** (共 {total_items} 条)\n\n"
+            rss_header = f"\n\n📰 **RSS 订阅统计** (共 {total_items} 条)\n\n"
     else:
         # 不需要分割线（第一个区域）
         if format_type == "feishu":
-            rss_header = f"📰 **橘鸦日报** (共 {total_items} 条)\n\n"
+            rss_header = f"📰 **RSS 订阅统计** (共 {total_items} 条)\n\n"
         elif format_type == "dingtalk":
-            rss_header = f"📰 **橘鸦日报** (共 {total_items} 条)\n\n"
+            rss_header = f"📰 **RSS 订阅统计** (共 {total_items} 条)\n\n"
         elif format_type == "telegram":
-            rss_header = f"📰 橘鸦日报 (共 {total_items} 条)\n\n"
+            rss_header = f"📰 RSS 订阅统计 (共 {total_items} 条)\n\n"
         elif format_type == "slack":
-            rss_header = f"📰 *橘鸦日报* (共 {total_items} 条)\n\n"
+            rss_header = f"📰 *RSS 订阅统计* (共 {total_items} 条)\n\n"
         else:
-            rss_header = f"📰 **橘鸦日报** (共 {total_items} 条)\n\n"
+            rss_header = f"📰 **RSS 订阅统计** (共 {total_items} 条)\n\n"
 
     # 添加 RSS 标题
     test_content = current_batch + rss_header
