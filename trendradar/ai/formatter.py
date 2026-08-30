@@ -102,6 +102,9 @@ def _render_ai_analysis_markdown_like(
 
     lines = ["**✨ AI 热点分析**", ""]
 
+    if result.key_takeaways:
+        lines.extend(["**📌 今日核心结论**", _format_list_content(result.key_takeaways), ""])
+
     if result.core_trends:
         lines.extend(["**核心热点态势**", _format_list_content(result.core_trends), ""])
 
@@ -150,8 +153,9 @@ def render_ai_analysis_feishu(result: AIAnalysisResult) -> str:
     )
     # 层级整形：小标签【xx】与其后续内容合并为同一行，避免小标题换行喧宾夺主
     text = re.sub(r"(【[^】]+】[:：]?)\s*\n+", r"\1", text)
-    # 板块大标题加左侧色条，与【小标签】形成两级视觉层级
+    # 板块大标题使用 Markdown 标准层级(##)，与【小标签】形成多级视觉层级
     for board_title in (
+        "今日核心结论",
         "核心热点态势",
         "舆论风向争议",
         "异动与弱信号",
@@ -159,7 +163,7 @@ def render_ai_analysis_feishu(result: AIAnalysisResult) -> str:
         "研判策略建议",
         "独立源点速览",
     ):
-        text = text.replace(f"**{board_title}**", f"▍**{board_title}**")
+        text = text.replace(f"**{board_title}**", f"## {board_title}")
     return text
 
 

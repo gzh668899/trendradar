@@ -18,6 +18,7 @@ from trendradar.ai.prompt_loader import load_prompt_template
 class AIAnalysisResult:
     """AI 分析结果"""
     # 新版 5 核心板块
+    key_takeaways: str = ""              # 今日核心结论(3-5条要点)
     core_trends: str = ""                # 核心热点与舆情态势
     sentiment_controversy: str = ""      # 舆论风向与争议
     signals: str = ""                    # 异动与弱信号
@@ -622,6 +623,7 @@ class AIAnalyzer:
 
         # 解析成功，提取字段
         try:
+            result.key_takeaways = data.get("key_takeaways", "")
             result.core_trends = data.get("core_trends", "")
             result.sentiment_controversy = data.get("sentiment_controversy", "")
             result.signals = data.get("signals", "")
