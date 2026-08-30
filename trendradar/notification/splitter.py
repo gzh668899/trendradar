@@ -342,7 +342,7 @@ def split_content_into_batches(
         elif format_type == "ntfy":
             stats_header = f"📊 **{stats_title}** (共 {total_hotlist_count} 条)\n\n"
         elif format_type == "feishu":
-            stats_header = f"📊 **{stats_title}** (共 {total_hotlist_count} 条)\n\n"
+            stats_header = f"📊 **{stats_title}**\n\n"
         elif format_type == "dingtalk":
             stats_header = f"📊 **{stats_title}** (共 {total_hotlist_count} 条)\n\n"
         elif format_type == "slack":
@@ -450,12 +450,7 @@ def split_content_into_batches(
                 else:
                     word_header = f"📌 {sequence_display} **{word}** : {count} 条\n\n"
             elif format_type == "feishu":
-                if count >= 10:
-                    word_header = f"🔥 <font color='grey'>{sequence_display}</font> **{word}** : <font color='red'>{count}</font> 条\n\n"
-                elif count >= 5:
-                    word_header = f"📈 <font color='grey'>{sequence_display}</font> **{word}** : <font color='orange'>{count}</font> 条\n\n"
-                else:
-                    word_header = f"📌 <font color='grey'>{sequence_display}</font> **{word}** : {count} 条\n\n"
+                word_header = f"▍**{word}** <font color='grey'>×{count}</font>\n\n"
             elif format_type == "dingtalk":
                 if count >= 10:
                     word_header = (
