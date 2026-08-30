@@ -95,9 +95,6 @@ platforms:
     - id: "ithome"
       name: "IT之家"
       expected_domain: "ithome.com"
-    - id: "_36kr"
-      name: "36氪"
-      expected_domain: "36kr.com"
 
 
 
@@ -134,9 +131,9 @@ rss:
       name: "量子位"
       url: "https://www.qbitai.com/feed"
 
-    - id: "jiqizhixin"
-      name: "机器之心"
-      url: "https://www.jiqizhixin.com/rss"
+    - id: "mit-tr-ai"
+      name: "MIT 科技评论 AI"
+      url: "https://www.technologyreview.com/topic/artificial-intelligence/feed"
 
     - id: "ruanyifeng"
       name: "阮一峰的网络日志"
