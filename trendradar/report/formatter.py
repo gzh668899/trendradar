@@ -65,15 +65,19 @@ def format_title_for_platform(
 
         title_prefix = "🆕 " if title_data.get("is_new") else ""
 
-        if show_source:
-            result = f"<font color='grey'>&#91;{title_data['source_name']}&#93;</font> {title_prefix}{formatted_title}"
-        elif show_keyword and keyword:
-            result = f"<font color='blue'>&#91;{keyword}&#93;</font> {title_prefix}{formatted_title}"
-        else:
-            result = f"{title_prefix}{formatted_title}"
+        # 定制:不显示来源前缀与排名数字,改用火焰分级表达相对热度
+        result = f"{title_prefix}{formatted_title}"
 
-        if rank_display:
-            result += f" {rank_display}"
+        ranks = title_data.get("ranks") or []
+        if ranks:
+            top_rank = min(ranks)
+            if top_rank <= 3:
+                result += " 🔥🔥🔥"
+            elif top_rank <= 10:
+                result += " 🔥🔥"
+            elif top_rank <= 20:
+                result += " 🔥"
+
         if title_data["count"] > 1:
             result += f" <font color='grey'>({title_data['count']}次)</font>"
 
