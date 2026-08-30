@@ -145,9 +145,22 @@ def render_ai_analysis_feishu(result: AIAnalysisResult) -> str:
     (link reference definition) 而整段不显示，故独立源点速览的源名改用 HTML 实体
     方括号 ``&#91;`` ``&#93;``（与 report/formatter.py 标题来源标签的处理一致）。
     """
-    return _render_ai_analysis_markdown_like(
+    text = _render_ai_analysis_markdown_like(
         result, standalone_brackets=("&#91;", "&#93;")
     )
+    # 层级整形：小标签【xx】与其后续内容合并为同一行，避免小标题换行喧宾夺主
+    text = re.sub(r"(【[^】]+】[:：]?)\s*\n+", r"\1", text)
+    # 板块大标题加左侧色条，与【小标签】形成两级视觉层级
+    for board_title in (
+        "核心热点态势",
+        "舆论风向争议",
+        "异动与弱信号",
+        "RSS 深度洞察",
+        "研判策略建议",
+        "独立源点速览",
+    ):
+        text = text.replace(f"**{board_title}**", f"▍**{board_title}**")
+    return text
 
 
 def render_ai_analysis_dingtalk(result: AIAnalysisResult) -> str:
