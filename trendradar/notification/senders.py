@@ -18,6 +18,7 @@
 import smtplib
 import time
 import json
+import re
 from datetime import datetime
 from email.header import Header
 from email.mime.multipart import MIMEMultipart
@@ -183,13 +184,17 @@ def send_to_feishu(
                 },
             }
         else:
+            # 飞书卡片 2.0 markdown 基于 CommonMark:单个 \n 是软换行(渲染为空格),
+            # 只有 \n\n 才分段。将单换行统一升级为段落分隔,已有的 \n\n 归一化防膨胀。
+            card_content = re.sub(r"\n{2,}", "\x00", batch_content)
+            card_content = card_content.replace("\n", "\n\n").replace("\x00", "\n\n")
             payload = {
                 "msg_type": "interactive",
                 "card": {
                     "schema": "2.0",
                     "body": {
                         "elements": [
-                            {"tag": "markdown", "content": batch_content}
+                            {"tag": "markdown", "content": card_content}
                         ]
                     },
                 },
