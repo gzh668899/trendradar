@@ -46,7 +46,7 @@ def render_feishu_content(
     # 生成热点词汇统计部分
     stats_content = ""
     if report_data["stats"]:
-        stats_content += "📊 **热点词汇统计**\n\n"
+        stats_content += "📊 **今日热点**\n\n"
 
         total_count = len(report_data["stats"])
 
@@ -54,14 +54,7 @@ def render_feishu_content(
             word = stat["word"]
             count = stat["count"]
 
-            sequence_display = f"<font color='grey'>[{i + 1}/{total_count}]</font>"
-
-            if count >= 10:
-                stats_content += f"🔥 {sequence_display} **{word}** : <font color='red'>{count}</font> 条\n\n"
-            elif count >= 5:
-                stats_content += f"📈 {sequence_display} **{word}** : <font color='orange'>{count}</font> 条\n\n"
-            else:
-                stats_content += f"📌 {sequence_display} **{word}** : {count} 条\n\n"
+            stats_content += f"▍**{word}** <font color='grey'>×{count}</font>\n\n"
 
             for j, title_data in enumerate(stat["titles"], 1):
                 formatted_title = format_title_for_platform(
@@ -73,7 +66,7 @@ def render_feishu_content(
                     stats_content += "\n"
 
             if i < len(report_data["stats"]) - 1:
-                stats_content += f"\n{separator}\n\n"
+                stats_content += "\n"
 
     # 生成新增新闻部分
     new_titles_content = ""
@@ -297,25 +290,21 @@ def _render_rss_section_feishu(rss_items: list, separator: str = "---") -> str:
             feeds_map[feed_id] = []
         feeds_map[feed_id].append(item)
 
-    text_content = f"📰 **RSS 订阅更新** (共 {len(rss_items)} 条)\n\n"
+    text_content = "📰 **RSS 订阅**\n\n"
 
     for feed_id, items in feeds_map.items():
         feed_name = items[0].get("feed_name", feed_id) if items else feed_id
 
-        text_content += f"**{feed_name}** ({len(items)} 条)\n\n"
+        text_content += f"▍**{feed_name}** <font color='grey'>×{len(items)}</font>\n\n"
 
         for i, item in enumerate(items, 1):
             title = item.get("title", "")
             url = item.get("url", "")
-            published_at = item.get("published_at", "")
 
             if url:
                 text_content += f"  {i}. [{title}]({url})"
             else:
                 text_content += f"  {i}. {title}"
-
-            if published_at:
-                text_content += f" <font color='grey'>- {published_at}</font>"
 
             text_content += "\n"
 
