@@ -198,14 +198,12 @@ def split_content_into_batches(
 
     batches = []
 
+    # 显示条数与正文一致：热榜/RSS 均取词组里的标题数（已按单组上限裁剪）
     total_hotlist_count = sum(
         len(stat["titles"]) for stat in report_data["stats"] if stat["count"] > 0
     )
-    total_titles = total_hotlist_count
-    
-    # 累加 RSS 条目数
-    if rss_items:
-        total_titles += sum(stat.get("count", 0) for stat in rss_items)
+    rss_display = sum(len(stat.get("titles", [])) for stat in (rss_items or []))
+    total_titles = total_hotlist_count + rss_display
 
     now = get_time_func() if get_time_func else datetime.now()
 
@@ -221,37 +219,29 @@ def split_content_into_batches(
         b_s, b_e = "**", "**"
 
     # 提取统计数据
-    hotlist_total = report_data.get("hotlist_total", total_hotlist_count)
-    new_count = report_data.get("total_new_count", 0)
     platform_total = report_data.get("platform_total", 0)
     failed_count = len(report_data.get("failed_ids", []))
     platform_success = platform_total - failed_count if platform_total else 0
-    rss_matched = report_data.get("rss_matched_count", 0)
-    rss_total_items = report_data.get("rss_total_count", 0)
     rss_source_total = report_data.get("rss_source_total", 0)
     rss_source_failed = report_data.get("rss_source_failed", 0)
     rss_source_success = max(0, rss_source_total - rss_source_failed)
 
-    # === 上半部分：数据统计 ===
+    # === 头部：时间与条数 ===
+    count_line = f"{b_s}{now.strftime('%m-%d %H:%M')} · 共 {total_titles} 条{b_e}"
+    scope_parts = []
+    if total_hotlist_count > 0:
+        scope_parts.append(f"热榜 {total_hotlist_count}")
+    if rss_display > 0:
+        scope_parts.append(f"RSS {rss_display}")
+    if scope_parts:
+        count_line += f"（{' + '.join(scope_parts)}）"
+    base_header += f"{count_line}\n"
 
-    # 1. 总新闻
-    rss_new_count = sum(len(stat.get("titles", [])) for stat in (rss_new_items or []))
-    total_new = new_count + rss_new_count
-    total_news_line = f"{b_s}总新闻：{b_e} {total_titles} 条"
-    if total_new > 0:
-        total_news_line += f"（新增 {new_count} + {rss_new_count}）"
-    base_header += f"{total_news_line}\n"
-
-    # 2. 热榜
-    hotlist_info = f"{b_s}热榜：{b_e} {total_hotlist_count}/{hotlist_total}"
-    if platform_total > 0:
-        hotlist_info += f"（平台 {platform_success}/{platform_total}）"
-    base_header += f"{hotlist_info}\n"
-
-    # 3. RSS
-    if rss_source_total > 0:
-        rss_info = f"{b_s}RSS：{b_e} {rss_matched}/{rss_total_items}（源 {rss_source_success}/{rss_source_total}）"
-        base_header += f"{rss_info}\n"
+    # 抓取异常提示，仅在失败时出现
+    if failed_count > 0:
+        base_header += f"⚠️ 热榜 {platform_success}/{platform_total} 个平台成功\n"
+    if rss_source_failed > 0:
+        base_header += f"⚠️ RSS {rss_source_success}/{rss_source_total} 个源成功\n"
 
     # 4. 独立展示区（仅在有数据时显示）
     if standalone_data:
@@ -266,39 +256,14 @@ def split_content_into_batches(
                 sa_parts.append(f"RSS {sa_rss_count}")
             base_header += f"{b_s}独立展示：{b_e} {sa_total} 条（{' + '.join(sa_parts)}）\n"
 
-    # 5. AI 分析（仅在有分析数据时显示）
-    standalone_analyzed = ai_stats.get("standalone_analyzed", 0) if ai_stats else 0
-    ai_has_data = ai_stats and (ai_stats.get("analyzed_news", 0) > 0 or standalone_analyzed > 0)
-    if ai_has_data:
-        hotlist_analyzed = ai_stats.get("hotlist_analyzed", 0)
-        rss_analyzed = ai_stats.get("rss_analyzed", 0)
-        ai_mode_val = ai_stats.get("ai_mode", "")
-
-        ai_parts = [str(hotlist_analyzed)]
-        if ai_stats.get("include_rss", True):
-            ai_parts.append(str(rss_analyzed))
-        if ai_stats.get("include_standalone", False):
-            ai_parts.append(str(standalone_analyzed))
-        ai_display = " + ".join(ai_parts) if sum(int(p) for p in ai_parts) > 0 else "0"
-
-        mode_suffix = ""
-        if ai_mode_val and ai_mode_val != mode:
-            mode_map = {"daily": "全天汇总", "current": "当前榜单", "incremental": "增量分析"}
-            mode_suffix = f" [{mode_map.get(ai_mode_val, ai_mode_val)}]"
-
-        base_header += f"{b_s}AI 分析：{b_e} {ai_display}{mode_suffix}\n"
-
     # === 空行分隔 ===
     base_header += "\n"
 
-    # === 下半部分：元信息 ===
-    base_header += f"{b_s}类型：{b_e} {report_type}\n"
-    base_header += f"{b_s}时间：{b_e} {now.strftime('%Y-%m-%d %H:%M:%S')}\n"
-
-    top_words = report_data.get("stats", [])[:3]
-    if top_words:
-        topics = " | ".join(f"{s['word']}({s['count']})" for s in top_words)
-        base_header += f"{b_s}最热话题：{b_e} {topics}\n"
+    # 热门话题：仅当匹配到多个词组时显示（单词组时整份推送都是它，无需重复）
+    stats_all = report_data.get("stats", [])
+    if len(stats_all) >= 2:
+        topics = " | ".join(s["word"] for s in stats_all[:3])
+        base_header += f"{b_s}热门话题：{b_e} {topics}\n"
 
     if format_type in ("feishu", "dingtalk"):
         base_header += "\n---\n\n"

@@ -63,20 +63,8 @@ def format_title_for_platform(
         else:
             formatted_title = cleaned_title
 
-        title_prefix = "🆕 " if title_data.get("is_new") else ""
-
-        # 定制:不显示来源前缀与排名数字,改用火焰分级表达相对热度
-        result = f"{title_prefix}{formatted_title}"
-
-        ranks = title_data.get("ranks") or []
-        if ranks:
-            top_rank = min(ranks)
-            if top_rank <= 3:
-                result += " 🔥🔥🔥"
-            elif top_rank <= 10:
-                result += " 🔥🔥"
-            elif top_rank <= 20:
-                result += " 🔥"
+        # 定制:飞书新闻行不显示来源前缀与排名数字
+        result = formatted_title
 
         if title_data["count"] > 1:
             result += f" <font color='grey'>({title_data['count']}次)</font>"
@@ -89,14 +77,12 @@ def format_title_for_platform(
         else:
             formatted_title = cleaned_title
 
-        title_prefix = "🆕 " if title_data.get("is_new") else ""
-
         if show_source:
-            result = f"[{title_data['source_name']}] {title_prefix}{formatted_title}"
+            result = f"[{title_data['source_name']}] {formatted_title}"
         elif show_keyword and keyword:
-            result = f"[{keyword}] {title_prefix}{formatted_title}"
+            result = f"[{keyword}] {formatted_title}"
         else:
-            result = f"{title_prefix}{formatted_title}"
+            result = f"{formatted_title}"
 
         if rank_display:
             result += f" {rank_display}"
@@ -114,14 +100,12 @@ def format_title_for_platform(
         else:
             formatted_title = cleaned_title
 
-        title_prefix = "🆕 " if title_data.get("is_new") else ""
-
         if show_source:
-            result = f"[{title_data['source_name']}] {title_prefix}{formatted_title}"
+            result = f"[{title_data['source_name']}] {formatted_title}"
         elif show_keyword and keyword:
-            result = f"[{keyword}] {title_prefix}{formatted_title}"
+            result = f"[{keyword}] {formatted_title}"
         else:
-            result = f"{title_prefix}{formatted_title}"
+            result = f"{formatted_title}"
 
         if rank_display:
             result += f" {rank_display}"
@@ -138,14 +122,12 @@ def format_title_for_platform(
         else:
             formatted_title = cleaned_title
 
-        title_prefix = "🆕 " if title_data.get("is_new") else ""
-
         if show_source:
-            result = f"[{title_data['source_name']}] {title_prefix}{formatted_title}"
+            result = f"[{title_data['source_name']}] {formatted_title}"
         elif show_keyword and keyword:
-            result = f"<b>[{html_escape(keyword)}]</b> {title_prefix}{formatted_title}"
+            result = f"<b>[{html_escape(keyword)}]</b> {formatted_title}"
         else:
-            result = f"{title_prefix}{formatted_title}"
+            result = f"{formatted_title}"
 
         if rank_display:
             result += f" {rank_display}"
@@ -162,14 +144,12 @@ def format_title_for_platform(
         else:
             formatted_title = cleaned_title
 
-        title_prefix = "🆕 " if title_data.get("is_new") else ""
-
         if show_source:
-            result = f"[{title_data['source_name']}] {title_prefix}{formatted_title}"
+            result = f"[{title_data['source_name']}] {formatted_title}"
         elif show_keyword and keyword:
-            result = f"[{keyword}] {title_prefix}{formatted_title}"
+            result = f"[{keyword}] {formatted_title}"
         else:
-            result = f"{title_prefix}{formatted_title}"
+            result = f"{formatted_title}"
 
         if rank_display:
             result += f" {rank_display}"
@@ -188,14 +168,12 @@ def format_title_for_platform(
         else:
             formatted_title = cleaned_title
 
-        title_prefix = "🆕 " if title_data.get("is_new") else ""
-
         if show_source:
-            result = f"[{title_data['source_name']}] {title_prefix}{formatted_title}"
+            result = f"[{title_data['source_name']}] {formatted_title}"
         elif show_keyword and keyword:
-            result = f"*[{keyword}]* {title_prefix}{formatted_title}"
+            result = f"*[{keyword}]* {formatted_title}"
         else:
-            result = f"{title_prefix}{formatted_title}"
+            result = f"{formatted_title}"
 
         # 排名（使用 * 加粗）
         rank_display = format_rank_display(
@@ -246,7 +224,7 @@ def format_title_for_platform(
             formatted_title += f" <font color='green'>({title_data['count']}次)</font>"
 
         if title_data.get("is_new"):
-            formatted_title = f"<div class='new-title'>🆕 {formatted_title}</div>"
+            formatted_title = f"<div class='new-title'>{formatted_title}</div>"
 
         return formatted_title
 
