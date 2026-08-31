@@ -35,7 +35,13 @@ on:
     #   "15 * * * *"     → 每小时第15分钟 / minute 15 every hour
     #   "30 0-14 * * *"  → 北京时间 8:00-22:00 每小时第30分钟 / Beijing 8am-10pm
     #
-    - cron: "33 * * * *"
+    # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    # 每天 5 个错开槽位（北京时间 10:30-11:10，UTC +8）
+    # GitHub 定时触发会随机丢槽位/延迟 20-30 分钟，多槽位提高命中率；
+    # 下方 "Skip If Already Ran Today" 保证当天只有第一次运行真正推送。
+    # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    - cron: "30,40,50 2 * * *"
+    - cron: "0,10 3 * * *"
 
   workflow_dispatch:
 
@@ -58,6 +64,24 @@ jobs:
         with:
           fetch-depth: 1
           clean: true
+
+      - name: Skip If Already Ran Today
+        if: github.event_name == 'schedule'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+        run: |
+          # 每天配置了多个错开槽位，GitHub 会随机丢弃部分触发；
+          # 当天已有一次成功运行的定时任务时，后续槽位直接跳过，保证每天只推一次。
+          # 只统计 schedule 触发的成功运行：手动触发不受影响，随时可用于测试。
+          TODAY=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+          API_URL="repos/${REPO}/actions/workflows/crawler.yml/runs?event=schedule&conclusion=success&created%3E=${TODAY}"
+          COUNT=$(gh api "$API_URL" --jq '.total_count')
+          if [ -n "$COUNT" ] && [ "$COUNT" -gt 0 ]; then
+            echo "✅ 今天已有 ${COUNT} 次成功的定时运行，跳过本次槽位"
+            exit 0
+          fi
+          echo "▶️ 今天还没有成功的定时运行，继续执行"
 
       - name: Check Expiration
         env:
